@@ -1,0 +1,42 @@
+{
+  "name": "job_portal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "payload": "payload"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "^3.87.1",
+    "@payloadcms/next": "^3.87.1",
+    "@payloadcms/richtext-lexical": "^3.87.1",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.2",
+    "framer-motion": "^13.0.0",
+    "graphql": "^16.14.2",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.30.0",
+    "next": "16.3.0",
+    "payload": "^3.87.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "resend": "^6.20.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/unist": "^3.0.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

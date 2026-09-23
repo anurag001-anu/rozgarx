@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #FF6B00;
+  --color-brand-hover: #E56000;
+  --color-brand-light: #FFF0E5;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  
+  --animate-marquee: marquee 20s linear infinite;
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+}
+
+:root {
+  --background: radial-gradient(circle at 10% 20%, rgba(219, 234, 254, 0.6), transparent 40%),
+                radial-gradient(circle at 90% 10%, rgba(255, 237, 213, 0.6), transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(224, 242, 254, 0.4), transparent 50%),
+                #fdfdfd;
+  --foreground: #000000;
+}
+
+body {
+  background: var(--background);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reusable Utilities */
+@layer utilities {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
