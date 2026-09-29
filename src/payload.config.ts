@@ -1,6 +1,7 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { resendAdapter } from '@payloadcms/email-resend'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Users } from './collections/Users'
@@ -58,6 +59,11 @@ export default buildConfig({
     SystemSettings,
   ],
   editor: lexicalEditor({}),
+  email: resendAdapter({
+    defaultFromAddress: process.env.EMAIL_FROM || 'noreply@rozgarx.com',
+    defaultFromName: 'RozgarX',
+    apiKey: process.env.RESEND_API_KEY || '',
+  }),
   secret: process.env.PAYLOAD_SECRET || 'your-secret-key',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
