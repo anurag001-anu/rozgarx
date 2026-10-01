@@ -7,6 +7,7 @@ import { getSavedJobsIds } from "@/app/actions/savedJobs";
 import { SaveJobButton } from "@/components/ui/SaveJobButton";
 import ApplyButton from "@/components/ui/ApplyButton";
 import configPromise from '@payload-config';
+import RichTextParser from "@/components/RichTextParser";
 
 // Helper to extract text from Payload Lexical AST
 function extractText(node: any): string {
@@ -287,35 +288,102 @@ export default async function GovJobDetails({ params }: { params: Promise<{ id: 
           </div>
         )}
 
-        {/* Content Tabs area (Mocked as sections for now) */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 md:p-8 mb-8">
-          <h2 className="text-xl font-bold text-black mb-4">Application Details (Demo)</h2>
-          
-          <div className="space-y-6 text-gray-600">
-            <div>
-              <h3 className="font-bold text-black mb-2">Application Fee</h3>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>General / OBC / EWS : <strong>₹100/-</strong></li>
-                <li>SC / ST / PH : <strong>₹0/-</strong></li>
-                <li>All Category Female : <strong>₹0/-</strong></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="font-bold text-black mb-2">Important Dates</h3>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Application Start : <strong>{job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-IN') : 'N/A'}</strong></li>
-                <li>Last Date for Apply Online : <strong className="text-red-600">{job.lastDate ? new Date(job.lastDate).toLocaleDateString('en-IN') : 'N/A'}</strong></li>
-                <li>Pay Exam Fee Last Date : <strong>{job.lastDate ? new Date(job.lastDate).toLocaleDateString('en-IN') : 'N/A'}</strong></li>
-                <li>Exam Date : <strong>As per Schedule</strong></li>
-              </ul>
-            </div>
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-sm text-yellow-800">
-              <strong>Disclaimer:</strong> This is a demo listing. Please always refer to the official government notification before applying.
+        {/* Dynamic Sections or Legacy Fallback */}
+        {job.dynamicSections && job.dynamicSections.length > 0 ? (
+          <div className="space-y-8 mb-8">
+            {job.dynamicSections.map((section: any, idx: number) => {
+              if (section.blockType === 'ImportantDates') {
+                return (
+                  <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-black mb-4">Important Dates</h2>
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                      {section.dates?.map((d: any, i: number) => (
+                        <li key={i}>
+                          {d.event} : <strong className={d.event.toLowerCase().includes('last') ? 'text-red-600' : ''}>
+                            {d.date ? new Date(d.date).toLocaleDateString('en-IN') : 'N/A'}
+                          </strong>
+                          {d.note && <span className="ml-2 text-sm text-gray-500">({d.note})</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              }
+
+              if (section.blockType === 'ApplicationFee') {
+                return (
+                  <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-black mb-4">Application Fee</h2>
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700 mb-4">
+                      {section.fees?.map((f: any, i: number) => (
+                        <li key={i}>
+                          {f.category} : <strong>{f.amount}</strong>
+                        </li>
+                      ))}
+                    </ul>
+                    {section.paymentMode && (
+                      <div className="text-sm text-gray-600"><strong>Payment Mode:</strong> {section.paymentMode}</div>
+                    )}
+                  </div>
+                );
+              }
+
+              if (section.blockType === 'ImportantLinks') {
+                return (
+                  <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-black mb-4">Important Links</h2>
+                    <div className="flex flex-col gap-3">
+                      {section.links?.map((link: any, i: number) => (
+                        <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline font-bold text-lg">
+                          {link.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+
+              // Generic RichText Block
+              if (section.title && section.content) {
+                return (
+                  <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-black mb-4 border-b border-gray-100 pb-2">{section.title}</h2>
+                    <div className="prose prose-gray max-w-none text-gray-600">
+                      <RichTextParser content={section.content} />
+                    </div>
+                  </div>
+                );
+              }
+
+              return null;
+            })}
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg border border-gray-200 p-6 md:p-8 mb-8">
+            <h2 className="text-xl font-bold text-black mb-4">Application Details (Legacy)</h2>
+            <div className="space-y-6 text-gray-600">
+              {job.applicationFee && (
+                <div>
+                  <h3 className="font-bold text-black mb-2">Application Fee</h3>
+                  <p>{job.applicationFee}</p>
+                </div>
+              )}
+              
+              <div>
+                <h3 className="font-bold text-black mb-2">Important Dates</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Application Start : <strong>{job.applicationStartDate ? new Date(job.applicationStartDate).toLocaleDateString('en-IN') : 'N/A'}</strong></li>
+                  <li>Last Date for Apply Online : <strong className="text-red-600">{job.lastDate ? new Date(job.lastDate).toLocaleDateString('en-IN') : 'N/A'}</strong></li>
+                  <li>Exam Date : <strong>{job.examDate ? new Date(job.examDate).toLocaleDateString('en-IN') : 'As per Schedule'}</strong></li>
+                </ul>
+              </div>
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-sm text-yellow-800">
+                <strong>Disclaimer:</strong> This is a legacy listing. Please refer to the official government notification before applying.
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

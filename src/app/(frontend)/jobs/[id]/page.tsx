@@ -192,66 +192,81 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
                     <h4 className="text-sm font-bold text-gray-500 mb-1">Qualification</h4>
                     <p className="font-medium text-gray-900">{job.qualification || 'Not Specified'}</p>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-500 mb-1">Age Limit</h4>
-                    <p className="font-medium text-gray-900">{job.ageLimit || 'Not Specified'}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-500 mb-1">Application Fee</h4>
-                    <p className="font-medium text-gray-900">{job.applicationFee || 'Not Specified'}</p>
-                  </div>
+                  {(!job.dynamicSections || job.dynamicSections.length === 0) && (
+                    <>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-500 mb-1">Age Limit</h4>
+                        <p className="font-medium text-gray-900">{job.ageLimit || 'Not Specified'}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-500 mb-1">Application Fee</h4>
+                        <p className="font-medium text-gray-900">{job.applicationFee || 'Not Specified'}</p>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <h4 className="text-sm font-bold text-gray-500 mb-1">Salary / Pay Level</h4>
                     <p className="font-medium text-gray-900">{job.salary || 'As per rules'}</p>
                   </div>
                 </div>
 
-                <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Important Dates</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="text-brand opacity-70" size={20} />
-                    <div>
-                      <div className="text-xs font-bold text-gray-500">Start Date</div>
-                      <div className="font-medium text-sm text-gray-900">{job.applicationStartDate ? new Date(job.applicationStartDate).toLocaleDateString() : 'N/A'}</div>
-                    </div>
+                {job.dynamicSections && job.dynamicSections.length > 0 ? (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <p className="text-brand font-bold mb-4">This job has detailed dynamic sections.</p>
+                    <a href={`/jobs/government/${job.id}`} className="inline-block bg-brand text-white px-6 py-2 rounded-lg font-medium hover:bg-brand-hover transition-colors">
+                      View Full Details
+                    </a>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="text-rose-500 opacity-70" size={20} />
-                    <div>
-                      <div className="text-xs font-bold text-gray-500">Last Date</div>
-                      <div className="font-bold text-sm text-rose-600">{job.lastDate ? new Date(job.lastDate).toLocaleDateString() : 'N/A'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Calendar className="text-gray-400" size={20} />
-                    <div>
-                      <div className="text-xs font-bold text-gray-500">Correction Date</div>
-                      <div className="font-medium text-sm text-gray-900">{job.correctionDate ? new Date(job.correctionDate).toLocaleDateString() : 'N/A'}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Calendar className="text-gray-400" size={20} />
-                    <div>
-                      <div className="text-xs font-bold text-gray-500">Exam Date</div>
-                      <div className="font-medium text-sm text-gray-900">{job.examDate ? new Date(job.examDate).toLocaleDateString() : 'To be notified'}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {(job.selectionProcess || job.requiredDocuments) && (
+                ) : (
                   <>
-                    <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Process & Requirements</h3>
-                    {job.selectionProcess && (
-                      <div className="mb-4">
-                        <h4 className="text-sm font-bold text-gray-500 mb-1">Selection Process</h4>
-                        <p className="text-sm text-gray-700">{job.selectionProcess}</p>
+                    <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Important Dates</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="text-brand opacity-70" size={20} />
+                        <div>
+                          <div className="text-xs font-bold text-gray-500">Start Date</div>
+                          <div className="font-medium text-sm text-gray-900">{job.applicationStartDate ? new Date(job.applicationStartDate).toLocaleDateString() : 'N/A'}</div>
+                        </div>
                       </div>
-                    )}
-                    {job.requiredDocuments && (
-                      <div>
-                        <h4 className="text-sm font-bold text-gray-500 mb-1">Required Documents</h4>
-                        <p className="text-sm text-gray-700">{job.requiredDocuments}</p>
+                      <div className="flex items-center gap-3">
+                        <Clock className="text-rose-500 opacity-70" size={20} />
+                        <div>
+                          <div className="text-xs font-bold text-gray-500">Last Date</div>
+                          <div className="font-bold text-sm text-rose-600">{job.lastDate ? new Date(job.lastDate).toLocaleDateString() : 'N/A'}</div>
+                        </div>
                       </div>
+                      <div className="flex items-center gap-3">
+                        <Calendar className="text-gray-400" size={20} />
+                        <div>
+                          <div className="text-xs font-bold text-gray-500">Correction Date</div>
+                          <div className="font-medium text-sm text-gray-900">{job.correctionDate ? new Date(job.correctionDate).toLocaleDateString() : 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Calendar className="text-gray-400" size={20} />
+                        <div>
+                          <div className="text-xs font-bold text-gray-500">Exam Date</div>
+                          <div className="font-medium text-sm text-gray-900">{job.examDate ? new Date(job.examDate).toLocaleDateString() : 'To be notified'}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {(job.selectionProcess || job.requiredDocuments) && (
+                      <>
+                        <h3 className="font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Process & Requirements</h3>
+                        {job.selectionProcess && (
+                          <div className="mb-4">
+                            <h4 className="text-sm font-bold text-gray-500 mb-1">Selection Process</h4>
+                            <p className="text-sm text-gray-700">{job.selectionProcess}</p>
+                          </div>
+                        )}
+                        {job.requiredDocuments && (
+                          <div>
+                            <h4 className="text-sm font-bold text-gray-500 mb-1">Required Documents</h4>
+                            <p className="text-sm text-gray-700">{job.requiredDocuments}</p>
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 )}

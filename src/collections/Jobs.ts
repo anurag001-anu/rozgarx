@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { NotificationService } from '../services/NotificationService'
+import jwt from 'jsonwebtoken'
 
 export const Jobs: CollectionConfig = {
   slug: 'jobs',
@@ -54,7 +55,32 @@ export const Jobs: CollectionConfig = {
       }
     ],
     beforeValidate: [
-      async ({ data, req, operation }) => {
+      async ({ data, req, operation, originalDoc }) => {
+        // Enforce Server-Side Type Security
+        if (operation === 'create') {
+          // Must have a valid signed token from the Add Job flow
+          if (!data?.postingContextToken) {
+            throw new Error('Security Error: Missing posting context token. Please use the official Add Job flow.');
+          }
+          try {
+            const decoded = jwt.verify(data.postingContextToken, process.env.PAYLOAD_SECRET || 'your-secret-key') as any;
+            if (decoded.type !== data.type) {
+              throw new Error(`Security Error: Type mismatch. Token authorized for ${decoded.type} but requested ${data.type}.`);
+            }
+            if (decoded.userId !== req.user?.id) {
+              throw new Error('Security Error: Token user mismatch. Token belongs to another session.');
+            }
+          } catch (e: any) {
+            if (e.message.includes('Security Error')) throw e;
+            throw new Error('Security Error: Invalid or expired posting context token. Please try again.');
+          }
+        }
+
+        // Prevent changing Job Type after creation (Server-Side Enforcement)
+        if (operation === 'update' && originalDoc?.type && data?.type && data.type !== originalDoc.type) {
+          throw new Error(`Type Modification Blocked: Cannot change Job Type from ${originalDoc.type} to ${data.type} after creation.`);
+        }
+
         // Draft vs Publish requirements
         const isPublishing = data?.status && data.status !== 'Draft' && data?.isArchived !== true;
         
@@ -221,6 +247,20 @@ export const Jobs: CollectionConfig = {
       admin: { position: 'sidebar', readOnly: true }
     },
     {
+      name: 'postingContextToken',
+      type: 'text',
+      virtual: true,
+      admin: {
+        position: 'sidebar',
+        components: {
+          Field: '@/components/admin/JobTokenField',
+        }
+      },
+      access: {
+        read: () => false,
+      }
+    },
+    {
       name: 'type',
       type: 'select',
       options: [
@@ -231,6 +271,9 @@ export const Jobs: CollectionConfig = {
       defaultValue: 'private',
       admin: {
         position: 'sidebar',
+        components: {
+          Field: '@/components/admin/JobTypeField',
+        }
       },
     },
     {
@@ -380,6 +423,173 @@ export const Jobs: CollectionConfig = {
       admin: {
         description: 'URL where candidate should apply directly (Govt portal or Company career page)',
       },
+    },
+
+    // --- GOVERNMENT JOB DYNAMIC SECTIONS ---
+    {
+      name: 'dynamicSections',
+      type: 'blocks',
+      admin: {
+        condition: (data) => data.type === 'government',
+      },
+      blocks: [
+        {
+          slug: 'ImportantDates',
+          labels: { singular: 'Important Dates', plural: 'Important Dates' },
+          fields: [
+            {
+              name: 'dates',
+              type: 'array',
+              fields: [
+                { name: 'event', type: 'text', required: true, label: 'Event Name' },
+                { name: 'date', type: 'date', required: true, label: 'Date' },
+                { name: 'note', type: 'text', label: 'Additional Note (Optional)' }
+              ]
+            }
+          ]
+        },
+        {
+          slug: 'ApplicationFee',
+          labels: { singular: 'Application Fee', plural: 'Application Fee' },
+          fields: [
+            {
+              name: 'fees',
+              type: 'array',
+              fields: [
+                { name: 'category', type: 'text', required: true, label: 'Category' },
+                { name: 'amount', type: 'text', required: true, label: 'Fee Amount' },
+              ]
+            },
+            { name: 'paymentMode', type: 'text', label: 'Payment Mode Details' }
+          ]
+        },
+        {
+          slug: 'VacancyTable',
+          labels: { singular: 'Vacancy Details', plural: 'Vacancy Details' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Vacancy Details', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'EducationalQualification',
+          labels: { singular: 'Educational Qualification', plural: 'Educational Qualification' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Educational Qualification', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'AgeLimit',
+          labels: { singular: 'Age Limit', plural: 'Age Limit' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Age Limit', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'SelectionProcess',
+          labels: { singular: 'Selection Process', plural: 'Selection Process' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Selection Process', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'ExamDetails',
+          labels: { singular: 'Exam Details', plural: 'Exam Details' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Exam Details', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'PhysicalStandards',
+          labels: { singular: 'Physical Standards', plural: 'Physical Standards' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Physical Standards', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'MedicalStandards',
+          labels: { singular: 'Medical Standards', plural: 'Medical Standards' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Medical Standards', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'SalaryPayScale',
+          labels: { singular: 'Salary / Pay Scale', plural: 'Salary / Pay Scale' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Salary / Pay Scale', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'Experience',
+          labels: { singular: 'Experience', plural: 'Experience' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Experience', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'DocumentsRequired',
+          labels: { singular: 'Documents Required', plural: 'Documents Required' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Documents Required', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'HowToApply',
+          labels: { singular: 'How to Apply', plural: 'How to Apply' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'How to Apply', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'HowToFillForm',
+          labels: { singular: 'How to Fill Form', plural: 'How to Fill Form' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'How to Fill Form', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'ImportantInstructions',
+          labels: { singular: 'Important Instructions', plural: 'Important Instructions' },
+          fields: [
+            { name: 'title', type: 'text', defaultValue: 'Important Instructions', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        },
+        {
+          slug: 'ImportantLinks',
+          labels: { singular: 'Important Links', plural: 'Important Links' },
+          fields: [
+            {
+              name: 'links',
+              type: 'array',
+              fields: [
+                { name: 'label', type: 'text', required: true, label: 'Link Label (e.g. Apply Online)' },
+                { name: 'url', type: 'text', required: true, label: 'URL' }
+              ]
+            }
+          ]
+        },
+        {
+          slug: 'CustomSection',
+          labels: { singular: 'Custom Section', plural: 'Custom Section' },
+          fields: [
+            { name: 'title', type: 'text', required: true },
+            { name: 'content', type: 'richText', required: true }
+          ]
+        }
+      ]
     },
 
     // --- GOVERNMENT JOB FIELDS ---

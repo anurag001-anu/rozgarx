@@ -31,11 +31,17 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     components: {
-      beforeNavLinks: ['@/components/admin/HomeNavLink'],
+      beforeNavLinks: ['@/components/admin/HomeNavLink', '@/components/admin/AddJobNavLink'],
       beforeDashboard: ['@/components/admin/DashboardMetrics'],
       graphics: {
         Logo: '@/components/admin/Logo',
         Icon: '@/components/admin/Icon',
+      },
+      views: {
+        AddJobSelect: {
+          path: '/add-job',
+          Component: '@/components/admin/AddJobSelectView',
+        }
       },
     },
   },

@@ -1,3 +1,5 @@
+import { default as default_2bec52bc482b0d7a2e2d8e6139973665 } from '@/components/admin/JobTokenField'
+import { default as default_699b69d405fe5f050f187ff9d1794e2b } from '@/components/admin/JobTypeField'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -25,10 +27,14 @@ import { default as default_534076e2c753ea5d539a54b05f456b1b } from '@/component
 import { default as default_a44df17d0fc3dcd873dae43dc3bf66bd } from '@/components/admin/Logo'
 import { default as default_e66dc426d84d840e2320659f7e73b9d3 } from '@/components/admin/DashboardMetrics'
 import { default as default_40be23687ebcb716554a0503e1aa72dd } from '@/components/admin/HomeNavLink'
+import { default as default_d96674e13c05829582d2f526ff0487bd } from '@/components/admin/AddJobNavLink'
+import { default as default_2394b8a3e1c6234e49e0c0699aefbdd8 } from '@/components/admin/AddJobSelectView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
+  "@/components/admin/JobTokenField#default": default_2bec52bc482b0d7a2e2d8e6139973665,
+  "@/components/admin/JobTypeField#default": default_699b69d405fe5f050f187ff9d1794e2b,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -56,5 +62,7 @@ export const importMap = {
   "@/components/admin/Logo#default": default_a44df17d0fc3dcd873dae43dc3bf66bd,
   "@/components/admin/DashboardMetrics#default": default_e66dc426d84d840e2320659f7e73b9d3,
   "@/components/admin/HomeNavLink#default": default_40be23687ebcb716554a0503e1aa72dd,
+  "@/components/admin/AddJobNavLink#default": default_d96674e13c05829582d2f526ff0487bd,
+  "@/components/admin/AddJobSelectView#default": default_2394b8a3e1c6234e49e0c0699aefbdd8,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

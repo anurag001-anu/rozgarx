@@ -50,6 +50,30 @@ export default function RichTextParser({ content }: { content: any }) {
       );
     }
     
+    if (node.type === 'table') {
+      return (
+        <div key={index} className="overflow-x-auto my-4 border rounded-lg border-gray-200">
+          <table className="w-full text-left text-sm">
+            <tbody className="divide-y divide-gray-200">
+              {node.children?.map((c: any, i: number) => renderNode(c, i))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (node.type === 'tablerow') {
+      return <tr key={index} className="hover:bg-gray-50 transition-colors">{node.children?.map((c: any, i: number) => renderNode(c, i))}</tr>;
+    }
+
+    if (node.type === 'tablecell') {
+      // payload lexical table cell can be a header or normal cell
+      if (node.headerState === 1 || node.headerState === 2 || node.headerState === 3) {
+        return <th key={index} className="py-3 px-4 font-semibold text-gray-700 bg-gray-50/50">{node.children?.map((c: any, i: number) => renderNode(c, i))}</th>;
+      }
+      return <td key={index} className="py-3 px-4 text-black border-r border-gray-100 last:border-0">{node.children?.map((c: any, i: number) => renderNode(c, i))}</td>;
+    }
+
     // root node or unknown block with children
     if (node.children) {
       return <div key={index}>{node.children.map((c: any, i: number) => renderNode(c, i))}</div>;
