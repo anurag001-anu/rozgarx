@@ -511,6 +511,7 @@ html[data-theme='light'] {
 }
 
 /* Payload Global Theme Overrides - Safe injection for Pura Admin Panel Design */
+/* Payload Global Theme Overrides - Safe injection for Pura Admin Panel Design */
 html[data-theme='dark'] {
   --theme-bg: #07111F !important;
   --theme-elevation-0: #0D1B2A !important;
@@ -519,7 +520,292 @@ html[data-theme='dark'] {
   --theme-elevation-150: #1a2a40 !important;
   --theme-elevation-200: #1e293b !important;
   --theme-text: #f8fafc !important;
-  --theme-success-400: #10b981 !important;
+  --theme-success-400: #FF6B00 !important;
+  --theme-success-500: #e65c00 !important;
   --theme-error-400: #ef4444 !important;
   --theme-warning-400: #f59e0b !important;
+}
+
+/* Premium Login Page & Admin UI */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Specific styling for Payload's default login box */
+form#login-form {
+  background: rgba(16, 26, 36, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.02) !important;
+  padding: 3rem !important;
+  max-width: 450px !important;
+  margin: 0 auto !important;
+}
+
+/* Premium Input Fields */
+input[type="text"], 
+input[type="email"], 
+input[type="password"] {
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  color: #fff !important;
+  padding: 0.75rem 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="password"]:focus {
+  border-color: #FF6B00 !important;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.15) !important;
+  outline: none !important;
+}
+
+/* Primary Submit Buttons */
+button[type="submit"] {
+  background: linear-gradient(135deg, #FF6B00 0%, #e65c00 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.8rem 1.5rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.25) !important;
+  width: 100% !important;
+  margin-top: 1rem !important;
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4) !important;
+}
+
+/* Links and labels for Login/Auth pages */
+form#login-form label, form#forgot-password-form label {
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+form#login-form a, form#forgot-password-form a {
+  color: #FF6B00 !important;
+  transition: color 0.2s ease !important;
+}
+
+form#login-form a:hover, form#forgot-password-form a:hover {
+  color: #ff8533 !important;
+  text-decoration: none !important;
+}
+
+/* Dashboard Premium Overhaul */
+.rx-dashboard {
+  background: transparent !important;
+}
+
+/* Hide default Payload collection groups that appear after our custom dashboard */
+.rx-dashboard ~ * {
+  display: none !important;
+}
+
+body[data-theme='dark'] {
+  background: radial-gradient(circle at 50% 0%, #101A24 0%, #07111F 100%) !important;
+  background-attachment: fixed !important;
+}
+
+.rx-kpi-card, .rx-panel {
+  background: rgba(16, 26, 36, 0.4) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.rx-kpi-card:hover, .rx-panel:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+/* Gradients for KPI Cards */
+.rx-glow-orange { 
+  background: linear-gradient(160deg, rgba(255,107,0,0.05) 0%, rgba(16,26,36,0) 100%) !important; 
+  border-top: 1px solid rgba(255,107,0,0.3) !important; 
+}
+.rx-glow-green { 
+  background: linear-gradient(160deg, rgba(16,185,129,0.05) 0%, rgba(16,26,36,0) 100%) !important; 
+  border-top: 1px solid rgba(16,185,129,0.3) !important; 
+}
+.rx-glow-blue { 
+  background: linear-gradient(160deg, rgba(59,130,246,0.05) 0%, rgba(16,26,36,0) 100%) !important; 
+  border-top: 1px solid rgba(59,130,246,0.3) !important; 
+}
+.rx-glow-purple { 
+  background: linear-gradient(160deg, rgba(139,92,246,0.05) 0%, rgba(16,26,36,0) 100%) !important; 
+  border-top: 1px solid rgba(139,92,246,0.3) !important; 
+}
+
+/* KPI Values Typography */
+.rx-kpi-val {
+  font-size: 2.5rem !important;
+  letter-spacing: -0.04em !important;
+  background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem !important;
+}
+
+.rx-title {
+  font-size: 1.75rem !important;
+  letter-spacing: -0.03em !important;
+  font-weight: 700 !important;
+  background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Icon Boxes */
+.rx-kpi-icon-box {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Premium Tables */
+.rx-table th {
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  font-size: 0.65rem !important;
+  color: #64748b !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  padding-bottom: 1rem !important;
+}
+
+.rx-table td {
+  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+  padding: 1.25rem 0 !important;
+  transition: background 0.2s !important;
+}
+
+.rx-table tr:hover td {
+  background: rgba(255,255,255,0.02) !important;
+}
+
+/* Dashboard Specific Buttons */
+.rx-btn-primary {
+  background: linear-gradient(135deg, #FF6B00 0%, #e65c00 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.25) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-size: 0.75rem !important;
+  color: white !important;
+}
+
+.rx-btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4) !important;
+}
+
+.rx-btn-outline {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.rx-btn-outline:hover {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Quick Actions Enhancement */
+.rx-qa-btn {
+  background: rgba(0,0,0,0.2) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.rx-qa-btn:hover {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  transform: translateX(6px) !important;
+  box-shadow: -4px 4px 15px rgba(0,0,0,0.2) !important;
+}
+
+/* Sidebar Navigation Premium Overhaul */
+nav.nav {
+  background: rgba(7, 17, 31, 0.6) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Nav Groups (Headers) */
+.nav-group__title, .nav-group__toggle {
+  font-size: 0.7rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #64748b !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 1.25rem !important;
+}
+
+/* Nav Links */
+.nav__link {
+  border-radius: 8px !important;
+  margin: 0.15rem 1rem !important;
+  padding: 0.5rem 0.75rem !important;
+  color: #94a3b8 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  text-decoration: none !important;
+}
+
+.nav__link:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #f8fafc !important;
+  transform: translateX(4px) !important;
+}
+
+/* Active Nav Link */
+.nav__link--active, .nav__link.active {
+  background: rgba(255, 107, 0, 0.1) !important;
+  color: #FF6B00 !important;
+  font-weight: 600 !important;
+}
+
+/* Orange Accent Bar for active link */
+.nav__link--active::before, .nav__link.active::before {
+  content: '' !important;
+  position: absolute !important;
+  left: -1rem !important;
+  top: 15% !important;
+  height: 70% !important;
+  width: 4px !important;
+  background-color: #FF6B00 !important;
+  border-radius: 0 4px 4px 0 !important;
+  box-shadow: 0 0 10px rgba(255, 107, 0, 0.5) !important;
+}
+
+/* Logout Button / Bottom Nav Icons */
+.nav__log-out {
+  color: #ef4444 !important;
+  transition: all 0.2s ease !important;
+}
+.nav__log-out:hover {
+  color: #ff6b6b !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-radius: 8px !important;
 }

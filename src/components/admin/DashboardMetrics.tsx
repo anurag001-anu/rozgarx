@@ -116,9 +116,10 @@ export default async function DashboardMetrics() {
         </div>
         <div className="rx-header-actions">
           <div className="rx-last-updated">
-            <RotateCw size={14} /> Last updated: 2 minutes ago
+            <RotateCw size={14} /> Last updated: Just now
           </div>
-          <Link href="/admin/collections/jobs" className="rx-btn rx-btn-outline"><RotateCw size={14}/> View Jobs</Link>
+          <a href="/" target="_blank" className="rx-btn rx-btn-outline"><Eye size={14}/> View Website</a>
+          <Link href="/admin/collections/jobs" className="rx-btn rx-btn-outline"><Briefcase size={14}/> View Jobs</Link>
           <Link href="/admin/collections/jobs/create" className="rx-btn rx-btn-primary"><Plus size={16} /> Add Job</Link>
         </div>
       </header>

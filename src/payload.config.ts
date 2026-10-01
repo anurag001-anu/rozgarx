@@ -31,10 +31,11 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     components: {
+      beforeNavLinks: ['@/components/admin/HomeNavLink'],
       beforeDashboard: ['@/components/admin/DashboardMetrics'],
       graphics: {
         Logo: '@/components/admin/Logo',
-        Icon: '@/components/admin/Logo',
+        Icon: '@/components/admin/Icon',
       },
     },
   },
