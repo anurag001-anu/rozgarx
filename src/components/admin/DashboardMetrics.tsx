@@ -1,424 +1,245 @@
-import React from 'react'
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
+'use client'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { 
-  Briefcase, Building, FileText, Users, CheckCircle2, AlertTriangle, 
-  Plus, ChevronRight, Activity, RotateCw, Eye, Key, Book, Bell, CreditCard,
-  FileCheck
-} from 'lucide-react'
 
-// Simple SVG Donut Chart Component
-const DonutChart = ({ segments, total, label }: { segments: {value: number, color: string}[], total: number, label: string }) => {
-  let cumulativePercent = 0;
+export default function DashboardMetrics() {
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [jobsRes, usersRes, sourcesRes, updatesRes] = await Promise.all([
+          fetch('/api/jobs?limit=5&sort=-createdAt'),
+          fetch('/api/users?limit=1'),
+          fetch('/api/job-sources?limit=5&where[healthStatus][equals]=Broken'),
+          fetch('/api/sarkari-updates?limit=5&sort=-createdAt')
+        ])
+
+        const jobs = await jobsRes.json()
+        const users = await usersRes.json()
+        const brokenSources = await sourcesRes.json()
+        const updates = await updatesRes.json()
+
+        const totalJobsRes = await fetch('/api/jobs?limit=1')
+        const activeJobsRes = await fetch('/api/jobs?limit=1&where[status][equals]=open')
+        const govtJobsRes = await fetch('/api/jobs?limit=1&where[type][equals]=government')
+        const privateJobsRes = await fetch('/api/jobs?limit=1&where[type][equals]=private')
+        const closingSoonRes = await fetch('/api/jobs?limit=5&where[status][equals]=closing soon')
+
+        const totalJobs = await totalJobsRes.json()
+        const activeJobs = await activeJobsRes.json()
+        const govtJobs = await govtJobsRes.json()
+        const privateJobs = await privateJobsRes.json()
+        const closingSoon = await closingSoonRes.json()
+
+        setData({
+          jobs: jobs.docs,
+          usersTotal: users.totalDocs,
+          brokenSources: brokenSources.docs,
+          updates: updates.docs,
+          totalJobsCount: totalJobs.totalDocs,
+          activeJobsCount: activeJobs.totalDocs,
+          govtJobsCount: govtJobs.totalDocs,
+          privateJobsCount: privateJobs.totalDocs,
+          closingSoonJobs: closingSoon.docs
+        })
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--theme-text, #64748b)' }}>Loading dashboard data...</div>
+  }
 
   return (
-    <div className="rx-donut-container">
-      <svg viewBox="0 0 42 42" className="rx-donut" style={{ overflow: 'visible' }}>
-        <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--rx-border)" strokeWidth="3" />
-        {segments.map((seg, i) => {
-          if (seg.value === 0) return null;
-          const percent = seg.value / total;
-          const strokeDasharray = `${percent * 100} ${100 - (percent * 100)}`;
-          // 25 offset rotates starting point to top (12 o'clock)
-          const strokeDashoffset = 25 - (cumulativePercent * 100);
-          cumulativePercent += percent;
-          
-          return (
-            <circle 
-              key={i}
-              cx="21" 
-              cy="21" 
-              r="15.91549430918954"
-              fill="transparent" 
-              stroke={seg.color} 
-              strokeWidth="4" 
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
-            />
-          );
-        })}
-      </svg>
-      <div className="rx-donut-text">
-        <span className="rx-donut-val">{total.toLocaleString()}</span>
-        <span className="rx-donut-label">{label}</span>
+    <div id="rx-dashboard" style={{ fontFamily: 'Inter, sans-serif', padding: '1rem 0 3rem 0' }}>
+      {/* CSS Injection to Safely Hide Payload's Duplicate Default Collections on Dashboard */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        #rx-dashboard ~ * {
+          display: none !important;
+        }
+      `}} />
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 0.25rem 0', color: 'var(--theme-text, #f8fafc)' }}>Dashboard</h1>
+          <p style={{ margin: 0, color: 'var(--theme-elevation-400, #94a3b8)', fontSize: '0.9rem' }}>Welcome to RozgarX Operations Console</p>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <a href="/" target="_blank" style={{ 
+            background: 'var(--theme-elevation-150, #1e293b)', 
+            color: 'var(--theme-text, #f8fafc)', 
+            padding: '0.6rem 1.25rem', 
+            borderRadius: '8px', 
+            textDecoration: 'none', 
+            fontWeight: 600,
+            border: '1px solid var(--theme-elevation-200, #334155)',
+            transition: 'background 0.2s'
+          }}>
+            View Website
+          </a>
+          <Link href="/admin/add-job" style={{ 
+            background: '#FF6B00', 
+            color: 'white', 
+            padding: '0.6rem 1.25rem', 
+            borderRadius: '8px', 
+            textDecoration: 'none', 
+            fontWeight: 600,
+            boxShadow: '0 4px 14px rgba(255, 107, 0, 0.25)',
+            transition: 'transform 0.2s'
+          }}>
+            + Add New Job
+          </Link>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
+        <KpiCard title="Total Jobs" value={data?.totalJobsCount || 0} color="#3b82f6" />
+        <KpiCard title="Active Jobs" value={data?.activeJobsCount || 0} color="#10b981" />
+        <KpiCard title="Govt Jobs" value={data?.govtJobsCount || 0} color="#FF6B00" />
+        <KpiCard title="Private Jobs" value={data?.privateJobsCount || 0} color="#8b5cf6" />
+        <KpiCard title="Total Users" value={data?.usersTotal || 0} color="#94a3b8" />
+      </div>
+
+      {/* 2-Column Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
+        {/* Left Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={panelStyle}>
+            <h3 style={panelTitleStyle}>Recently Added Jobs</h3>
+            <ul style={listStyle}>
+              {data?.jobs?.length ? data.jobs.map((job: any) => (
+                <li key={job.id} style={listItemStyle}>
+                  <div>
+                    <Link href={`/admin/collections/jobs/${job.id}`} style={linkStyle}>{job.title}</Link>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--theme-elevation-400, #64748b)', marginTop: '0.3rem' }}>
+                      <span style={{ color: job.type === 'government' ? '#FF6B00' : '#8b5cf6', fontWeight: 600 }}>{job.type.toUpperCase()}</span> • {job.status.toUpperCase()}
+                    </div>
+                  </div>
+                </li>
+              )) : <li style={emptyItemStyle}>No recent jobs</li>}
+            </ul>
+          </div>
+
+          <div style={panelStyle}>
+            <h3 style={panelTitleStyle}>Closing Soon</h3>
+            <ul style={listStyle}>
+              {data?.closingSoonJobs?.length ? data.closingSoonJobs.map((job: any) => (
+                <li key={job.id} style={listItemStyle}>
+                  <div>
+                    <Link href={`/admin/collections/jobs/${job.id}`} style={linkStyle}>{job.title}</Link>
+                    <div style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: '0.3rem', fontWeight: 500 }}>
+                      Ends: {job.lastDate ? new Date(job.lastDate).toLocaleDateString() : 'No date'}
+                    </div>
+                  </div>
+                </li>
+              )) : <li style={emptyItemStyle}>No jobs closing soon</li>}
+            </ul>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={panelStyle}>
+            <h3 style={panelTitleStyle}>Latest Govt Updates</h3>
+            <ul style={listStyle}>
+              {data?.updates?.length ? data.updates.map((update: any) => (
+                <li key={update.id} style={listItemStyle}>
+                  <div>
+                    <Link href={`/admin/collections/sarkari-updates/${update.id}`} style={linkStyle}>{update.title}</Link>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--theme-elevation-400, #64748b)', marginTop: '0.3rem' }}>{update.category}</div>
+                  </div>
+                </li>
+              )) : <li style={emptyItemStyle}>No recent updates</li>}
+            </ul>
+          </div>
+
+          <div style={panelStyle}>
+            <h3 style={panelTitleStyle}>Broken Job Sources</h3>
+            <ul style={listStyle}>
+              {data?.brokenSources?.length ? data.brokenSources.map((source: any) => (
+                <li key={source.id} style={listItemStyle}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <Link href={`/admin/collections/job-sources/${source.id}`} style={linkStyle}>{source.name}</Link>
+                      <div style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: '0.3rem' }}>Needs attention</div>
+                    </div>
+                    <a href={source.sourceUrl} target="_blank" style={{ fontSize: '0.8rem', color: '#3b82f6', textDecoration: 'none' }}>Test Link</a>
+                  </div>
+                </li>
+              )) : <li style={emptyItemStyle}>All sources healthy ✅</li>}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-// Simple Sparkline Component
-const Sparkline = ({ color }: { color: string }) => {
-  // Random sparkline points for visual effect similar to the photo
+function KpiCard({ title, value, color }: { title: string, value: string | number, color: string }) {
   return (
-    <svg className="rx-sparkline" viewBox="0 0 100 20" preserveAspectRatio="none">
-      <polyline 
-        fill="none" 
-        stroke={color} 
-        strokeWidth="1.5"
-        points="0,15 10,10 20,12 30,5 40,8 50,2 60,6 70,3 80,9 90,1 100,5"
-      />
-    </svg>
+    <div style={{ 
+      background: 'var(--theme-elevation-50, #101A24)', 
+      border: '1px solid var(--theme-elevation-150, #1e293b)', 
+      padding: '1.5rem', 
+      borderRadius: '12px',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+      borderTop: `2px solid ${color}`
+    }}>
+      <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: 'var(--theme-elevation-400, #94a3b8)', letterSpacing: '0.05em', fontWeight: 600, marginBottom: '0.75rem' }}>{title}</div>
+      <div style={{ fontSize: '2.5rem', fontWeight: '800', color: 'var(--theme-text, #f8fafc)', lineHeight: 1 }}>{value}</div>
+    </div>
   )
 }
 
-export default async function DashboardMetrics() {
-  const payload = await getPayload({ config: configPromise })
+const panelStyle = {
+  background: 'var(--theme-elevation-50, #101A24)',
+  border: '1px solid var(--theme-elevation-150, #1e293b)',
+  borderRadius: '12px',
+  padding: '1.5rem',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+}
 
-  const [
-    totalJobs, publishedJobs, archivedJobs, govtJobs, privateJobs,
-    users, jobseekers, employers, resumes,
-    results, admitCards, answerKeys, syllabuses, notifications,
-    sourcesHealthy, sourcesWarning, sourcesFailed,
-    recentJobs, recentUpdates
-  ] = await Promise.all([
-    payload.count({ collection: 'jobs' }),
-    payload.count({ collection: 'jobs', where: { _status: { equals: 'published' } } }),
-    payload.count({ collection: 'jobs', where: { isArchived: { equals: true } } }),
-    payload.count({ collection: 'jobs', where: { type: { equals: 'government' } } }),
-    payload.count({ collection: 'jobs', where: { type: { equals: 'private' } } }),
+const panelTitleStyle = {
+  margin: '0 0 1.25rem 0',
+  fontSize: '1.1rem',
+  fontWeight: '700',
+  color: 'var(--theme-text, #f8fafc)'
+}
 
-    payload.count({ collection: 'users' }),
-    payload.count({ collection: 'users', where: { role: { equals: 'jobseeker' } } }),
-    payload.count({ collection: 'users', where: { role: { equals: 'employer' } } }),
-    payload.count({ collection: 'resumes' }),
+const listStyle = {
+  listStyle: 'none',
+  padding: 0,
+  margin: 0,
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: '1rem'
+}
 
-    payload.count({ collection: 'results' }),
-    payload.count({ collection: 'admit-cards' }),
-    payload.count({ collection: 'answer-keys' }),
-    payload.count({ collection: 'syllabuses' }),
-    payload.count({ collection: 'govt-notifications' }),
+const listItemStyle = {
+  borderBottom: '1px solid var(--theme-elevation-100, #1e293b)',
+  paddingBottom: '1rem'
+}
 
-    payload.count({ collection: 'job-sources', where: { healthStatus: { equals: 'Healthy' } } }),
-    payload.count({ collection: 'job-sources', where: { healthStatus: { equals: 'Warning' } } }),
-    payload.count({ collection: 'job-sources', where: { healthStatus: { equals: 'Broken' } } }),
+const emptyItemStyle = {
+  color: 'var(--theme-elevation-400, #64748b)',
+  fontSize: '0.9rem',
+  fontStyle: 'italic',
+  padding: '1rem 0'
+}
 
-    payload.find({ collection: 'jobs', depth: 0, limit: 5, sort: '-updatedAt' }),
-    payload.find({ collection: 'results', depth: 1, limit: 5, sort: '-updatedAt' })
-  ])
-
-  // Donut data
-  const jobsTotal = totalJobs.totalDocs || 1; // prevent div by zero
-  const draftJobs = totalJobs.totalDocs - publishedJobs.totalDocs;
-  const sourcesTotal = (sourcesHealthy.totalDocs + sourcesWarning.totalDocs + sourcesFailed.totalDocs) || 1;
-
-  return (
-    <div className="rx-dashboard">
-      
-      {/* Header */}
-      <header className="rx-header">
-        <div className="rx-header-left">
-          <Activity className="rx-pulse-icon" size={24} />
-          <div>
-            <h1 className="rx-title">RozgarX Operations</h1>
-            <p className="rx-subtitle">Monitor jobs, candidates, companies and government updates in real-time.</p>
-          </div>
-        </div>
-        <div className="rx-header-actions">
-          <div className="rx-last-updated">
-            <RotateCw size={14} /> Last updated: Just now
-          </div>
-          <a href="/" target="_blank" className="rx-btn rx-btn-outline"><Eye size={14}/> View Website</a>
-          <Link href="/admin/collections/jobs" className="rx-btn rx-btn-outline"><Briefcase size={14}/> View Jobs</Link>
-          <Link href="/admin/collections/jobs/create" className="rx-btn rx-btn-primary"><Plus size={16} /> Add Job</Link>
-        </div>
-      </header>
-
-      {/* KPI Row */}
-      <div className="rx-kpi-row">
-        <div className="rx-kpi-card rx-glow-orange">
-          <div className="rx-kpi-top">
-            <div className="rx-kpi-icon-box rx-box-orange"><Briefcase size={18} /></div>
-            <span className="rx-kpi-label">TOTAL JOBS</span>
-            <span className="rx-kpi-dots">...</span>
-          </div>
-          <div className="rx-kpi-val">{totalJobs.totalDocs.toLocaleString()}</div>
-          <div className="rx-kpi-trend text-green-500">↗ 12 this week</div>
-          <Sparkline color="#FF6B00" />
-        </div>
-
-        <div className="rx-kpi-card rx-glow-green">
-          <div className="rx-kpi-top">
-            <div className="rx-kpi-icon-box rx-box-green"><CheckCircle2 size={18} /></div>
-            <span className="rx-kpi-label">PUBLISHED JOBS</span>
-            <span className="rx-kpi-dots">...</span>
-          </div>
-          <div className="rx-kpi-val">{publishedJobs.totalDocs.toLocaleString()}</div>
-          <div className="rx-kpi-trend text-green-500">↗ 8 this week</div>
-          <Sparkline color="#059669" />
-        </div>
-
-        <div className="rx-kpi-card rx-glow-blue">
-          <div className="rx-kpi-top">
-            <div className="rx-kpi-icon-box rx-box-blue"><Building size={18} /></div>
-            <span className="rx-kpi-label">GOVERNMENT JOBS</span>
-            <span className="rx-kpi-dots">...</span>
-          </div>
-          <div className="rx-kpi-val">{govtJobs.totalDocs.toLocaleString()}</div>
-          <div className="rx-kpi-trend text-green-500">↗ 24 this week</div>
-          <Sparkline color="#2563eb" />
-        </div>
-
-        <div className="rx-kpi-card rx-glow-purple">
-          <div className="rx-kpi-top">
-            <div className="rx-kpi-icon-box rx-box-purple"><Building size={18} /></div>
-            <span className="rx-kpi-label">PRIVATE JOBS</span>
-            <span className="rx-kpi-dots">...</span>
-          </div>
-          <div className="rx-kpi-val">{privateJobs.totalDocs.toLocaleString()}</div>
-          <div className="rx-kpi-trend text-green-500">↗ 18 this week</div>
-          <Sparkline color="#7c3aed" />
-        </div>
-      </div>
-
-      {/* Middle Operations Grid */}
-      <div className="rx-grid-4">
-        
-        {/* Job Overview */}
-        <div className="rx-panel">
-          <h3 className="rx-panel-title">JOB OVERVIEW</h3>
-          <div className="rx-donut-layout">
-            <DonutChart 
-              total={totalJobs.totalDocs} 
-              label="Total"
-              segments={[
-                { value: publishedJobs.totalDocs, color: '#059669' },
-                { value: draftJobs, color: '#FF6B00' },
-                { value: archivedJobs.totalDocs, color: '#475569' }
-              ]} 
-            />
-            <div className="rx-donut-legend">
-              <div className="rx-legend-item">
-                <div className="rx-legend-left"><span className="rx-dot rx-dot-green"></span>Published</div>
-                <div className="rx-legend-right">{publishedJobs.totalDocs} <span className="rx-pct">({Math.round((publishedJobs.totalDocs/jobsTotal)*100)}%)</span></div>
-              </div>
-              <div className="rx-legend-item">
-                <div className="rx-legend-left"><span className="rx-dot rx-dot-orange"></span>Drafts</div>
-                <div className="rx-legend-right">{draftJobs} <span className="rx-pct">({Math.round((draftJobs/jobsTotal)*100)}%)</span></div>
-              </div>
-              <div className="rx-legend-item">
-                <div className="rx-legend-left"><span className="rx-dot rx-dot-gray"></span>Archived</div>
-                <div className="rx-legend-right">{archivedJobs.totalDocs} <span className="rx-pct">({Math.round((archivedJobs.totalDocs/jobsTotal)*100)}%)</span></div>
-              </div>
-            </div>
-          </div>
-          <div className="rx-panel-footer">
-            <Link href="/admin/collections/jobs">View all jobs →</Link>
-          </div>
-        </div>
-
-        {/* Government Updates */}
-        <div className="rx-panel">
-          <h3 className="rx-panel-title">GOVERNMENT UPDATES</h3>
-          <div className="rx-list">
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-blue"><FileCheck size={16}/></div> Results</div>
-              <div className="rx-list-right">{results.totalDocs}</div>
-            </div>
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-green"><CreditCard size={16}/></div> Admit Cards</div>
-              <div className="rx-list-right">{admitCards.totalDocs}</div>
-            </div>
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-yellow"><Key size={16}/></div> Answer Keys</div>
-              <div className="rx-list-right">{answerKeys.totalDocs}</div>
-            </div>
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-purple"><Book size={16}/></div> Syllabuses</div>
-              <div className="rx-list-right">{syllabuses.totalDocs}</div>
-            </div>
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-red"><Bell size={16}/></div> Notifications</div>
-              <div className="rx-list-right">{notifications.totalDocs}</div>
-            </div>
-          </div>
-          <div className="rx-panel-footer">
-            <Link href="/admin/collections/govt-notifications">View all updates →</Link>
-          </div>
-        </div>
-
-        {/* Users & Candidates */}
-        <div className="rx-panel">
-          <h3 className="rx-panel-title">USERS & CANDIDATES</h3>
-          <div className="rx-list">
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-blue"><Users size={16}/></div> Total Users</div>
-              <div className="rx-list-right">{users.totalDocs.toLocaleString()}</div>
-            </div>
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-green"><Users size={16}/></div> Jobseekers</div>
-              <div className="rx-list-right">{jobseekers.totalDocs.toLocaleString()}</div>
-            </div>
-            <div className="rx-list-item">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-purple"><Building size={16}/></div> Employers</div>
-              <div className="rx-list-right">{employers.totalDocs.toLocaleString()}</div>
-            </div>
-            <div className="rx-list-item mt-auto">
-              <div className="rx-list-left"><div className="rx-list-icon rx-text-orange"><FileText size={16}/></div> Resumes</div>
-              <div className="rx-list-right">{resumes.totalDocs.toLocaleString()}</div>
-            </div>
-          </div>
-          <div className="rx-panel-footer">
-            <Link href="/admin/collections/users">View all users →</Link>
-          </div>
-        </div>
-
-        {/* Job Sources Health */}
-        <div className="rx-panel">
-          <h3 className="rx-panel-title">JOB SOURCES HEALTH</h3>
-          <div className="rx-donut-layout">
-            <DonutChart 
-              total={sourcesTotal} 
-              label="Total Sources"
-              segments={[
-                { value: sourcesHealthy.totalDocs, color: '#059669' },
-                { value: sourcesWarning.totalDocs, color: '#f59e0b' },
-                { value: sourcesFailed.totalDocs, color: '#dc2626' }
-              ]} 
-            />
-            <div className="rx-donut-legend">
-              <div className="rx-legend-item">
-                <div className="rx-legend-left"><span className="rx-dot rx-dot-green"></span>Healthy</div>
-                <div className="rx-legend-right">{sourcesHealthy.totalDocs}</div>
-              </div>
-              <div className="rx-legend-item">
-                <div className="rx-legend-left"><span className="rx-dot rx-dot-yellow"></span>Warnings</div>
-                <div className="rx-legend-right">{sourcesWarning.totalDocs}</div>
-              </div>
-              <div className="rx-legend-item">
-                <div className="rx-legend-left"><span className="rx-dot rx-dot-red"></span>Failed</div>
-                <div className="rx-legend-right">{sourcesFailed.totalDocs}</div>
-              </div>
-            </div>
-          </div>
-          <div className="rx-panel-footer">
-            <Link href="/admin/collections/job-sources">View all sources →</Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Grid (Tables + Actions) */}
-      <div className="rx-grid-bottom">
-        
-        {/* Recent Jobs */}
-        <div className="rx-panel rx-panel-table">
-          <div className="rx-panel-header-row">
-            <h3 className="rx-panel-title">RECENT JOBS</h3>
-            <Link href="/admin/collections/jobs" className="rx-link-small text-orange-500">View all jobs →</Link>
-          </div>
-          <table className="rx-table">
-            <thead>
-              <tr>
-                <th>Job Title</th>
-                <th>Type</th>
-                <th>Company</th>
-                <th>Status</th>
-                <th>Updated</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentJobs.docs.map((job: any) => (
-                <tr key={job.id}>
-                  <td className="rx-text-highlight">{job.title}</td>
-                  <td>{job.type === 'private' ? 'Private' : 'Government'}</td>
-                  <td>{typeof job.company === 'object' ? job.company?.name : job.organization || '-'}</td>
-                  <td><span className={`rx-badge ${job._status === 'published' ? 'rx-badge-green' : 'rx-badge-orange'}`}>{job._status === 'published' ? 'Published' : 'Draft'}</span></td>
-                  <td>{Math.floor(Math.random()*10)+1}h ago</td>
-                  <td>
-                    <Link href={`/admin/collections/jobs/${job.id}`} className="rx-icon-btn">
-                      <Eye size={16} />
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="rx-table-footer">
-            <Link href="/admin/collections/jobs">View all jobs →</Link>
-          </div>
-        </div>
-
-        {/* Recent Government Updates */}
-        <div className="rx-panel rx-panel-table">
-          <div className="rx-panel-header-row">
-            <h3 className="rx-panel-title">RECENT GOVERNMENT UPDATES</h3>
-            <Link href="/admin/collections/results" className="rx-link-small text-orange-500">View all updates →</Link>
-          </div>
-          <table className="rx-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Related Job</th>
-                <th>Status</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentUpdates.docs.map((item: any) => (
-                <tr key={item.id}>
-                  <td className="rx-text-highlight">{item.title}</td>
-                  <td>Result</td>
-                  <td>{item.relatedJob?.title?.substring(0, 15) || '-'}</td>
-                  <td><span className={`rx-badge ${item._status === 'published' ? 'rx-badge-green' : 'rx-badge-orange'}`}>{item._status === 'published' ? 'Published' : 'Draft'}</span></td>
-                  <td>{Math.floor(Math.random()*5)+1}h ago</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="rx-panel">
-          <h3 className="rx-panel-title">QUICK ACTIONS</h3>
-          <div className="rx-quick-actions">
-            <Link href="/admin/collections/jobs/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-orange"><Plus size={14}/></div>
-              <span>Add Job</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-            <Link href="/admin/collections/companies/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-orange"><Building size={14}/></div>
-              <span>Add Company</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-            <Link href="/admin/collections/results/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-green"><FileCheck size={14}/></div>
-              <span>Add Result</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-            <Link href="/admin/collections/admit-cards/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-blue"><CreditCard size={14}/></div>
-              <span>Add Admit Card</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-            <Link href="/admin/collections/answer-keys/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-yellow"><Key size={14}/></div>
-              <span>Add Answer Key</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-            <Link href="/admin/collections/syllabuses/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-purple"><Book size={14}/></div>
-              <span>Add Syllabus</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-            <Link href="/admin/collections/govt-notifications/create" className="rx-qa-btn">
-              <div className="rx-qa-icon rx-bg-red"><Bell size={14}/></div>
-              <span>Add Notification</span>
-              <ChevronRight size={14} className="rx-qa-arrow"/>
-            </Link>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Footer */}
-      <footer className="rx-footer">
-        <div className="rx-footer-left">RozgarX Admin Console</div>
-        <div className="rx-footer-center"><span className="rx-dot rx-dot-green"></span> All systems operational</div>
-        <div className="rx-footer-right">v1.0.0</div>
-      </footer>
-    </div>
-  )
+const linkStyle = {
+  color: 'var(--theme-text, #f8fafc)',
+  textDecoration: 'none',
+  fontWeight: 600,
+  fontSize: '0.95rem',
+  display: 'block'
 }

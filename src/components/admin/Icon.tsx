@@ -1,13 +1,19 @@
-import React from 'react'
+import React from 'react';
 
 export default function Icon() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FF6B00"/>
-        <path d="M2 17L12 22L22 17" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M2 12L12 17L22 12" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+    <div style={{ 
+      background: 'linear-gradient(135deg, #FF6B00 0%, #f59e0b 100%)', 
+      color: 'white', 
+      fontWeight: 'bold', 
+      padding: '0.35rem 0.6rem', 
+      borderRadius: '6px', 
+      fontSize: '1.25rem', 
+      lineHeight: 1,
+      display: 'inline-block',
+      boxShadow: '0 2px 8px rgba(255, 107, 0, 0.3)'
+    }}>
+      RX
     </div>
-  )
+  );
 }

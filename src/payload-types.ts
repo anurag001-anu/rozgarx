@@ -569,6 +569,39 @@ export interface Job {
             blockName?: string | null;
             blockType: 'CustomSection';
           }
+        | {
+            title: string;
+            description?: string | null;
+            columns: {
+              heading: string;
+              id?: string | null;
+            }[];
+            rows?:
+              | {
+                  cells?:
+                    | {
+                        value?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'DynamicMatrix';
+          }
+        | {
+            title: string;
+            listItems: {
+              key: string;
+              value?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'KeyValueList';
+          }
       )[]
     | null;
   govtCategory?:
@@ -1434,6 +1467,45 @@ export interface JobsSelect<T extends boolean = true> {
           | {
               title?: T;
               content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        DynamicMatrix?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              columns?:
+                | T
+                | {
+                    heading?: T;
+                    id?: T;
+                  };
+              rows?:
+                | T
+                | {
+                    cells?:
+                      | T
+                      | {
+                          value?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        KeyValueList?:
+          | T
+          | {
+              title?: T;
+              listItems?:
+                | T
+                | {
+                    key?: T;
+                    value?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };

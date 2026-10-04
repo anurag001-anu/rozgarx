@@ -32,7 +32,14 @@ export async function GET(req: Request) {
     );
     
     // Redirect to payload create page with token and jobType
-    return NextResponse.redirect(new URL(`/admin/collections/jobs/create?jobType=${type}&token=${token}`, req.url));
+    const response = NextResponse.redirect(new URL(`/admin/collections/jobs/create?jobType=${type}&token=${token}`, req.url));
+    response.cookies.set('postingContextToken', token, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production', 
+      maxAge: 3600, 
+      path: '/' 
+    });
+    return response;
   } catch (err: any) {
     return NextResponse.json({ error: 'Internal Server Error', details: err.message }, { status: 500 });
   }

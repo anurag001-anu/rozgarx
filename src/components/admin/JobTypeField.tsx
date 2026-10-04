@@ -9,10 +9,17 @@ export default function JobTypeField({ path, required }: { path: string, require
   const jobType = searchParams.get('jobType')
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.pathname.endsWith('/create')) {
+      if (!jobType) {
+        window.location.href = '/admin/add-job';
+        return;
+      }
+    }
+
     if (jobType === 'government' && value !== 'government') {
-      setValue('government')
+      setTimeout(() => setValue('government'), 50);
     } else if (jobType === 'private' && value !== 'private') {
-      setValue('private')
+      setTimeout(() => setValue('private'), 50);
     }
   }, [jobType, value, setValue])
 

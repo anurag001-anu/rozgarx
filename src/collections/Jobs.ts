@@ -59,13 +59,21 @@ export const Jobs: CollectionConfig = {
         // Enforce Server-Side Type Security
         if (operation === 'create') {
           // Must have a valid signed token from the Add Job flow
-          if (!data?.postingContextToken) {
+          let token = data?.postingContextToken;
+          if (!token && req.headers) {
+            const cookieHeader = typeof req.headers.get === 'function' ? req.headers.get('cookie') : (req.headers as any).cookie;
+            if (cookieHeader) {
+              const match = cookieHeader.match(/postingContextToken=([^;]+)/);
+              if (match) token = match[1];
+            }
+          }
+          if (!token) {
             throw new Error('Security Error: Missing posting context token. Please use the official Add Job flow.');
           }
           try {
-            const decoded = jwt.verify(data.postingContextToken, process.env.PAYLOAD_SECRET || 'your-secret-key') as any;
-            if (decoded.type !== data.type) {
-              throw new Error(`Security Error: Type mismatch. Token authorized for ${decoded.type} but requested ${data.type}.`);
+            const decoded = jwt.verify(token, process.env.PAYLOAD_SECRET || 'your-secret-key') as any;
+            if (decoded.type !== data?.type) {
+              throw new Error(`Security Error: Type mismatch. Token authorized for ${decoded.type} but requested ${data?.type}.`);
             }
             if (decoded.userId !== req.user?.id) {
               throw new Error('Security Error: Token user mismatch. Token belongs to another session.');
@@ -82,7 +90,7 @@ export const Jobs: CollectionConfig = {
         }
 
         // Draft vs Publish requirements
-        const isPublishing = data?.status && data.status !== 'Draft' && data?.isArchived !== true;
+        const isPublishing = data?.status && data.status !== 'draft' && data?.isArchived !== true;
         
         if (isPublishing) {
           if (data?.type === 'government') {
@@ -249,17 +257,14 @@ export const Jobs: CollectionConfig = {
     {
       name: 'postingContextToken',
       type: 'text',
-      virtual: true,
+      hooks: { beforeChange: [() => null] },
       admin: {
         position: 'sidebar',
         components: {
           Field: '@/components/admin/JobTokenField',
         }
       },
-      access: {
-        read: () => false,
-      }
-    },
+      },
     {
       name: 'type',
       type: 'select',
@@ -268,7 +273,7 @@ export const Jobs: CollectionConfig = {
         { label: 'Government', value: 'government' },
       ],
       required: true,
-      defaultValue: 'private',
+      
       admin: {
         position: 'sidebar',
         components: {
@@ -582,13 +587,58 @@ export const Jobs: CollectionConfig = {
           ]
         },
         {
-          slug: 'CustomSection',
-          labels: { singular: 'Custom Section', plural: 'Custom Section' },
-          fields: [
-            { name: 'title', type: 'text', required: true },
-            { name: 'content', type: 'richText', required: true }
-          ]
-        }
+                  slug: 'CustomSection',
+                  labels: { singular: 'Custom Section', plural: 'Custom Section' },
+                  fields: [
+                    { name: 'title', type: 'text', required: true },
+                    { name: 'content', type: 'richText', required: true }
+                  ]
+                },
+                {
+                  slug: 'DynamicMatrix',
+                  labels: { singular: 'Matrix Table', plural: 'Matrix Tables' },
+                  fields: [
+                    { name: 'title', type: 'text', required: true, label: 'Table Title' },
+                    { name: 'description', type: 'textarea', label: 'Optional Description or Footnote' },
+                    { 
+                      name: 'columns', type: 'array', required: true, minRows: 1, 
+                      fields: [{ name: 'heading', type: 'text', required: true }] 
+                    },
+                    { 
+                      name: 'rows', type: 'array',
+                      validate: (value: any, { siblingData }: any) => {
+                        const cols = siblingData?.columns?.length || 0;
+                        if (value && Array.isArray(value)) {
+                          for (let i = 0; i < value.length; i++) {
+                            const cells = value[i]?.cells?.length || 0;
+                            if (cells !== cols) {
+                              return `Validation Error: Row ${i + 1} has ${cells} cells, but the table has ${cols} columns. Please match the number of cells. Blank cells can be left empty but the cell itself must exist.`;
+                            }
+                          }
+                        }
+                        return true;
+                      },
+                      fields: [{ 
+                        name: 'cells', type: 'array', 
+                        fields: [{ name: 'value', type: 'text' }] 
+                      }] 
+                    }
+                  ]
+                },
+                {
+                  slug: 'KeyValueList',
+                  labels: { singular: 'Key-Value List', plural: 'Key-Value Lists' },
+                  fields: [
+                    { name: 'title', type: 'text', required: true, label: 'Section Title' },
+                    { 
+                      name: 'listItems', type: 'array', required: true, 
+                      fields: [
+                        { name: 'key', type: 'text', required: true, label: 'Label' }, 
+                        { name: 'value', type: 'textarea', label: 'Value (Optional for long text)' }
+                      ] 
+                    }
+                  ]
+                }
       ]
     },
 

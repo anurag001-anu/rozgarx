@@ -10,7 +10,7 @@ export default function JobTokenField({ path }: { path: string }) {
 
   useEffect(() => {
     if (token && value !== token) {
-      setValue(token)
+      setTimeout(() => setValue(token), 50)
     }
   }, [token, value, setValue])
 

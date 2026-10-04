@@ -292,6 +292,54 @@ export default async function GovJobDetails({ params }: { params: Promise<{ id: 
         {job.dynamicSections && job.dynamicSections.length > 0 ? (
           <div className="space-y-8 mb-8">
             {job.dynamicSections.map((section: any, idx: number) => {
+              
+              if (section.blockType === 'DynamicMatrix') {
+                return (
+                  <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-black mb-4">{section.title}</h2>
+                    {section.description && <p className="text-gray-600 mb-4">{section.description}</p>}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm border-collapse">
+                        <thead>
+                          <tr className="bg-brand/10 text-brand">
+                            {section.columns?.map((col: any, i: number) => (
+                              <th key={i} className="py-3 px-4 border border-gray-200 font-bold whitespace-nowrap">{col.heading}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {section.rows?.map((row: any, rIdx: number) => (
+                            <tr key={rIdx} className="hover:bg-gray-50 transition-colors">
+                              {section.columns?.map((col: any, cIdx: number) => (
+                                <td key={cIdx} className="py-3 px-4 border border-gray-200 text-gray-800">
+                                  {row.cells?.[cIdx]?.value || '-'}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              }
+
+              if (section.blockType === 'KeyValueList') {
+                return (
+                  <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-black mb-4">{section.title}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {section.listItems?.map((item: any, i: number) => (
+                        <div key={i} className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-100 pb-2">
+                          <span className="font-semibold text-gray-700">{item.key}:</span>
+                          <span className="text-black font-medium">{item.value || '-'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+
               if (section.blockType === 'ImportantDates') {
                 return (
                   <div key={idx} className="bg-white rounded-lg border border-gray-200 p-6 md:p-8">

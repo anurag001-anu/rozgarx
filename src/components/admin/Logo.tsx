@@ -1,21 +1,23 @@
-import React from 'react'
+import React from 'react';
 
 export default function Logo() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FF6B00"/>
-          <path d="M2 17L12 22L22 17" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M2 12L12 17L22 12" stroke="#FF6B00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--theme-text, #fff)' }}>
-          Rozgar<span style={{ color: '#FF6B00' }}>X</span>
-        </span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ 
+        background: 'linear-gradient(135deg, #FF6B00 0%, #f59e0b 100%)', 
+        color: 'white', 
+        fontWeight: 'bold', 
+        padding: '0.35rem 0.6rem', 
+        borderRadius: '6px', 
+        fontSize: '1.25rem', 
+        lineHeight: 1,
+        boxShadow: '0 2px 8px rgba(255, 107, 0, 0.3)'
+      }}>
+        RX
       </div>
-      <span style={{ fontSize: '0.65rem', color: 'var(--theme-elevation-400, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        Admin Console
+      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--theme-text, #f8fafc)', letterSpacing: '-0.02em' }}>
+        Rozgar<span style={{ color: '#FF6B00' }}>X</span>
       </span>
     </div>
-  )
+  );
 }

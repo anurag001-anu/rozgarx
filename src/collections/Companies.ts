@@ -14,6 +14,7 @@ export const Companies: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+    group: 'Recruitment',
   },
   access: {
     read: () => true,

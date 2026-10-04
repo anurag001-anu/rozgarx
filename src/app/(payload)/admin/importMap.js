@@ -26,8 +26,6 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { default as default_534076e2c753ea5d539a54b05f456b1b } from '@/components/admin/Icon'
 import { default as default_a44df17d0fc3dcd873dae43dc3bf66bd } from '@/components/admin/Logo'
 import { default as default_e66dc426d84d840e2320659f7e73b9d3 } from '@/components/admin/DashboardMetrics'
-import { default as default_40be23687ebcb716554a0503e1aa72dd } from '@/components/admin/HomeNavLink'
-import { default as default_d96674e13c05829582d2f526ff0487bd } from '@/components/admin/AddJobNavLink'
 import { default as default_2394b8a3e1c6234e49e0c0699aefbdd8 } from '@/components/admin/AddJobSelectView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -61,8 +59,6 @@ export const importMap = {
   "@/components/admin/Icon#default": default_534076e2c753ea5d539a54b05f456b1b,
   "@/components/admin/Logo#default": default_a44df17d0fc3dcd873dae43dc3bf66bd,
   "@/components/admin/DashboardMetrics#default": default_e66dc426d84d840e2320659f7e73b9d3,
-  "@/components/admin/HomeNavLink#default": default_40be23687ebcb716554a0503e1aa72dd,
-  "@/components/admin/AddJobNavLink#default": default_d96674e13c05829582d2f526ff0487bd,
   "@/components/admin/AddJobSelectView#default": default_2394b8a3e1c6234e49e0c0699aefbdd8,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
